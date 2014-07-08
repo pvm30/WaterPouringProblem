@@ -1,7 +1,6 @@
 package pouring;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,7 +23,6 @@ public class Pouring {
 	private final List<List<Path>> pathSets;
 
 	// Constructor.. This 'capacities' array represents the different available glasses and their sizes...
-	@SuppressWarnings("unchecked")
 	public Pouring(int[] capacities) {
 
 		// All possible moves
@@ -34,7 +32,7 @@ public class Pouring {
 		State initialState = new State(new int[capacities.length]);
 
 		List<Path> initialPaths = new ArrayList<Path>();
-		initialPaths.add(new Path(Collections.EMPTY_LIST, initialState));
+		initialPaths.add(new Path(new ArrayList<Move>(), initialState));
 
 		Set<State> explored = new HashSet<State>();
 		explored.add(initialState);
@@ -42,11 +40,13 @@ public class Pouring {
 		pathSets = fromInitialPaths(initialPaths, explored);
 	}
 
-	@SuppressWarnings("unchecked")
 	private List<List<Path>> fromInitialPaths(List<Path> initialPaths,	Set<State> explored) {
 		
-		if (initialPaths.isEmpty())
-			return Collections.EMPTY_LIST;
+		if (initialPaths.isEmpty()) {
+			// Using Collections.EMPTY_LIST was throwing a UnsupportedOperationException
+			// when prepending
+			return new ArrayList<List<Path>>();
+		}
 		else {
 			// This 'more' gives us the new set of paths after adding all
 			// possible moves to all pre-existing paths not yet explored...
@@ -59,9 +59,12 @@ public class Pouring {
 					}
 				}
 			}
-
-			return prepend(initialPaths,
-					fromInitialPaths(more, addToExplored(explored, more)));
+			
+			// Calling recursively and prepending...
+			List<List<Path>> newPaths = fromInitialPaths(more, addToExplored(explored, more));
+			newPaths.add(0, initialPaths);
+			
+			return newPaths;
 		}
 	}
 
@@ -72,14 +75,6 @@ public class Pouring {
 			newExplored.add(path.endState);
 
 		return newExplored;
-	}
-
-	private List<List<Path>> prepend(List<Path> paths, List<List<Path>> fromInitialPaths) {
-		List<List<Path>> newFromInitialPaths = new ArrayList<List<Path>>(fromInitialPaths);
-
-		newFromInitialPaths.add(0, paths);
-		
-		return newFromInitialPaths;
 	}
 
 	private List<Move> getAllPossibleMoves(int[] capacities) {
