@@ -11,4 +11,4 @@ a JUnit test is executed solving the 'Water Jug Riddle from Die Hard 3' ;-P
 http://www.math.tamu.edu/~dallen/hollywood/diehard/diehard.htm  
 
 
-Regards
+Regards 
